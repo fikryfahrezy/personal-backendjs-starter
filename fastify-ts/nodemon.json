@@ -1,0 +1,11 @@
+{
+  "restartable": "rs",
+  "ignore": [".git", "node_modules/**/node_modules"],
+  "verbose": true,
+  "execMap": {
+    "ts": "npm run ts-node"
+  },
+  "events": {},
+  "watch": ["src/*"],
+  "ext": "ts,json"
+}
