@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "9f0b6504-6ff4-49bc-ad87-1147e4ed647d",
+    "_postman_id": "f04c53ab-ddf0-473f-8bc4-d0f5a2e9051d",
     "name": "Example",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -9,7 +9,7 @@
       "name": "example",
       "item": [
         {
-          "name": "POST Example",
+          "name": "Post Example",
           "event": [
             {
               "listen": "test",
@@ -17,7 +17,7 @@
                 "exec": [
                   "const { Request } = require('postman-collection');\r",
                   "\r",
-                  "const makeRequest = function makeRequest(payload) {\r",
+                  "const makeRequest = function makeRequest(payload = {}) {\r",
                   "    return new Request({\r",
                   "        method: 'POST',\r",
                   "        url: pm.environment.replaceIn(\"{{URL}}/example\"),\r",
@@ -79,21 +79,44 @@
           "response": []
         },
         {
-          "name": "GET Example",
+          "name": "Get  Data",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Get Success', () => {\r",
-                  "        const { code, headers } = pm.response;\r",
-                  "        const body = pm.response.json();\r",
+                  "const { Request } = require('postman-collection');\r",
+                  "\r",
+                  "const makeRequest = function makeRequest(query = '') {\r",
+                  "    return new Request({\r",
+                  "        method: 'GET',\r",
+                  "        url: pm.environment.replaceIn(`{{URL}}/example${query}`),\r",
+                  "    });\r",
+                  "};\r",
+                  "\r",
+                  "pm.sendRequest(makeRequest(''), (_, response) => {\r",
+                  "    pm.test('Success, Without Query', () => {\r",
+                  "        const { code, headers } = response;\r",
+                  "        const body = response.json();\r",
                   "\r",
                   "        pm.environment.set('EXAMPLE_ID', body.data[0].id)\r",
                   "\r",
                   "        pm.expect(code).to.eql(200);\r",
                   "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
                   "        pm.expect(body.success).to.eql(true);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.sendRequest(makeRequest('?limit=1'), (_, response) => {\r",
+                  "    pm.test('Success, With Query `?limit=1`', () => {\r",
+                  "        const { code, headers } = response;\r",
+                  "        const body = response.json();\r",
+                  "\r",
+                  "        pm.expect(code).to.eql(200);\r",
+                  "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
+                  "        pm.expect(body.success).to.eql(true);\r",
+                  "        pm.expect(body.data.length).to.eql(1);\r",
+                  "    });\r",
                   "});\r",
                   ""
                 ],
@@ -113,7 +136,7 @@
           "response": []
         },
         {
-          "name": "GET Single Example",
+          "name": "Get Single Data",
           "event": [
             {
               "listen": "test",
@@ -121,7 +144,7 @@
                 "exec": [
                   "const { Request } = require('postman-collection');\r",
                   "\r",
-                  "const makeRequest = function makeRequest(id) {\r",
+                  "const makeRequest = function makeRequest(id = 0) {\r",
                   "    return new Request({\r",
                   "        method: 'GET',\r",
                   "        url: pm.environment.replaceIn(`{{URL}}/example/${id}`),\r",
@@ -171,7 +194,7 @@
           "response": []
         },
         {
-          "name": "POST Example File",
+          "name": "Post File",
           "event": [
             {
               "listen": "test",
@@ -210,7 +233,6 @@
                   "        pm.expect(response.json().success).to.eql(false);\r",
                   "    });\r",
                   "});\r",
-                  "\r",
                   ""
                 ],
                 "type": "text/javascript"
@@ -226,7 +248,7 @@
                 {
                   "key": "file",
                   "type": "file",
-                  "src": "Bliss.png"
+                  "src": "image-test.png"
                 }
               ]
             },
@@ -239,7 +261,7 @@
           "response": []
         },
         {
-          "name": "GET Private Example",
+          "name": "Get Private Data",
           "event": [
             {
               "listen": "test",
@@ -259,7 +281,7 @@
                   "    });\r",
                   "};\r",
                   "\r",
-                  "pm.sendRequest(makeRequest('1'), (_, response) => {\r",
+                  "pm.sendRequest(makeRequest('0'), (_, response) => {\r",
                   "    pm.test('Success', () => {\r",
                   "        const { code, headers } = response;\r",
                   "\r",
@@ -270,8 +292,18 @@
                   "});\r",
                   "\r",
                   "pm.sendRequest(makeRequest('2'), (_, response) => {\r",
-                  "    pm.test('Fail, Wrong Header Key', () => {\r",
-                  "        const { code, headers, json } = response;\r",
+                  "    pm.test('Fail, Wrong Authorization Key', () => {\r",
+                  "        const { code, headers } = response;\r",
+                  "\r",
+                  "        pm.expect(code).to.eql(403);\r",
+                  "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
+                  "        pm.expect(response.json().success).to.eql(false);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.sendRequest(makeRequest('aaaa'), (_, response) => {\r",
+                  "    pm.test('Fail, Invalid Authorization Key', () => {\r",
+                  "        const { code, headers } = response;\r",
                   "\r",
                   "        pm.expect(code).to.eql(403);\r",
                   "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
@@ -280,8 +312,8 @@
                   "});\r",
                   "\r",
                   "pm.sendRequest(makeRequest(), (_, response) => {\r",
-                  "    pm.test('Fail, Header Key Not Given', () => {\r",
-                  "        const { code, headers, json } = response;\r",
+                  "    pm.test('Fail, Authorization Key Not Given', () => {\r",
+                  "        const { code, headers } = response;\r",
                   "\r",
                   "        pm.expect(code).to.eql(403);\r",
                   "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
@@ -321,6 +353,103 @@
               "raw": "{{URL}}/example/private",
               "host": ["{{URL}}"],
               "path": ["example", "private"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Admin Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const { Request } = require('postman-collection');\r",
+                  "\r",
+                  "const makeRequest = function makeRequest(token) {\r",
+                  "    const header = {};\r",
+                  "\r",
+                  "    if (token) header.authorization = token;\r",
+                  "\r",
+                  "    return new Request({\r",
+                  "        header,\r",
+                  "        method: 'GET',\r",
+                  "        url: pm.environment.replaceIn('{{URL}}/example/admin'),\r",
+                  "    });\r",
+                  "};\r",
+                  "\r",
+                  "pm.sendRequest(makeRequest('1'), (_, response) => {\r",
+                  "    pm.test('Success', () => {\r",
+                  "        const { code, headers } = response;\r",
+                  "\r",
+                  "        pm.expect(code).to.eql(200);\r",
+                  "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
+                  "        pm.expect(response.json().success).to.eql(true);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.sendRequest(makeRequest('2'), (_, response) => {\r",
+                  "    pm.test('Fail, Wrong Authorization Key', () => {\r",
+                  "        const { code, headers } = response;\r",
+                  "\r",
+                  "        pm.expect(code).to.eql(403);\r",
+                  "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
+                  "        pm.expect(response.json().success).to.eql(false);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.sendRequest(makeRequest('aaaa'), (_, response) => {\r",
+                  "    pm.test('Fail, Invalid Authorization Key', () => {\r",
+                  "        const { code, headers } = response;\r",
+                  "\r",
+                  "        pm.expect(code).to.eql(403);\r",
+                  "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
+                  "        pm.expect(response.json().success).to.eql(false);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.sendRequest(makeRequest(), (_, response) => {\r",
+                  "    pm.test('Fail, Authorization Key Not Given', () => {\r",
+                  "        const { code, headers } = response;\r",
+                  "\r",
+                  "        pm.expect(code).to.eql(403);\r",
+                  "        pm.expect(headers.toObject()['content-type']).to.eql('application/json; charset=utf-8');\r",
+                  "        pm.expect(response.json().success).to.eql(false);\r",
+                  "    });\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "1",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "authorization",
+                  "type": "string"
+                },
+                {
+                  "key": "in",
+                  "value": "header",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL}}/example/admin",
+              "host": ["{{URL}}"],
+              "path": ["example", "admin"]
             }
           },
           "response": []

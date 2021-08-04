@@ -8,19 +8,18 @@ src                                 ->  Application main folder.
 |   |_  models                      ->  Table or document models folder.
 |   |   |_  [databases]             ->  Specified database.
 |   |   |   |_ [files].ts           ->  Mapped related database table or document.
-|   |_  repositories                ->  Bridge for service to interact with a database or other resources.
-|   |   |_  [RouteRepository].ts    ->  Repository for each route.
 |   |_  routes                      ->  API routes folder.
 |   |   |_  [routes-name]           ->  Route name folder.
-|   |   |   |_  controller.ts       ->  Route controller. Handle client request and send feedback to client.
+|   |   |   |_  controllers.ts       ->  Route controller. Handle client request and send feedback to client.
 |   |   |   |_  index.ts            ->  Router for controllers.
+|   |   |   |_  repository.ts       ->  Connector for service to interact with a database or other resources.
 |   |   |   |_  schemas.ts          ->  Route request and response schema.
-|   |   |   |_  service.ts          ->  Route handle logic and process.
+|   |   |   |_  services.ts         ->  Route handle logic and process.
 |   |   |_  index.ts                ->  Every API version entry point. Register API router for each version.
 |   |_  types                       ->  All defined TypeScript types used in API process.
+|   |   |_  api.ts                  ->  Api (controller, route, etc) variable, parameter, etc type.
 |   |   |_  fastify.ts              ->  Custom fastify type.
-|   |   |_  model.ts                ->  Database select query type.
-|   |   |_  schema.ts               ->  Schema type.
+|   |   |_  schema.ts               ->  Data schema type.
 |   |   |_  utils.ts                ->  Some type used for utility functions.
 |   |_  utils                       ->  API utilities folder.
 |   |   |_  [files].ts              ->  Utility files.

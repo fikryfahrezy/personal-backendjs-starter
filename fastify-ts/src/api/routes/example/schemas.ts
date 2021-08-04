@@ -14,6 +14,20 @@ export const requestParams = {
  * The order of the keys is following the order of the POST / PATCH
  * routes in Postman
  */
+export const requestQuery = {
+  getQuery: {
+    properties: {
+      page: {
+        type: 'string',
+      },
+      limit: {
+        type: 'string',
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
 export const requestBody = {
   postBody: {
     required: ['name'],

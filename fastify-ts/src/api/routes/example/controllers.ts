@@ -1,11 +1,19 @@
+import type { Request, RequestHandler } from '../../types/fastify';
 import type {
   ApiKeyHeader,
   IdRequestParams,
+  GetQuery,
   PostRequestBody,
   FileRequestBody,
 } from '../../types/schema';
-import type { Request, RequestHandler } from '../../types/fasitify';
-import { getIdService, getService, postFileService, postService } from './service';
+import ApiType from '../../types/api';
+import {
+  getIdService,
+  getService,
+  postFileService,
+  postService,
+  getPrivateService,
+} from './services';
 
 export const postExample: RequestHandler<Request<{ Body: PostRequestBody }>> = function postExample(
   req,
@@ -20,8 +28,19 @@ export const postExample: RequestHandler<Request<{ Body: PostRequestBody }>> = f
   });
 };
 
-export const getExample: RequestHandler<Request> = function getExample(_, res): void {
-  const resData = getService();
+export const getExample: RequestHandler<Request<{ Querystring: GetQuery }>> = function getExample(
+  req,
+  res,
+): void {
+  const query = req.requestContext.get<ApiType['SearchQuery']>('query');
+
+  if (!query) {
+    res.badRequest();
+
+    return;
+  }
+
+  const resData = getService(query);
 
   res.status(200).header('Content-Type', 'application/json; charset=utf-8').send({
     code: 200,
@@ -58,8 +77,16 @@ export const postFileExample: RequestHandler<
 
 export const getPrivateExample: RequestHandler<
   Request<{ Headers: ApiKeyHeader }>
-> = function getPrivateExample(_, res): void {
-  const resData = getService();
+> = function getPrivateExample(req, res): void {
+  const userToken = req.requestContext.get<ApiType['UserToken']>('usertoken');
+
+  if (!userToken) {
+    res.unauthorized();
+
+    return;
+  }
+
+  const resData = getPrivateService(userToken.userId);
 
   res.status(200).header('Content-Type', 'application/json; charset=utf-8').send({
     code: 200,

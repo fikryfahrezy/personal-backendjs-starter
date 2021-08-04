@@ -1,6 +1,5 @@
 import type { Server } from 'http';
 import type { FastifyInstance } from 'fastify';
-import fs from 'fs';
 import app from '../../src/config/app';
 import {
   fileDir,
@@ -9,6 +8,7 @@ import {
   postExample,
   postFileExample,
   getPrivateExamples,
+  getAdminExamples,
 } from '../component';
 
 let server: Server = null;
@@ -43,12 +43,25 @@ describe('Post Data', () => {
 });
 
 describe('Get Data', () => {
-  test('Success', async () => {
-    const { status, headers, body } = await getExamples(server);
+  test('Success, Without Query', async () => {
+    const query = '';
+
+    const { status, headers, body } = await getExamples(server, query);
 
     expect(status).toBe(200);
     expect(headers['content-type']).toBe('application/json; charset=utf-8');
     expect(body.success).toBe(true);
+  });
+
+  test('Success, With Query `?limit=1`', async () => {
+    const query = '?limit=1';
+
+    const { status, headers, body } = await getExamples(server, query);
+
+    expect(status).toBe(200);
+    expect(headers['content-type']).toBe('application/json; charset=utf-8');
+    expect(body.success).toBe(true);
+    expect(body.data.length).toBe(1);
   });
 });
 
@@ -90,23 +103,77 @@ describe('Post File', () => {
 
 describe('Get Private Data', () => {
   test('Success', async () => {
-    const { status, headers, body } = await getPrivateExamples(server, '1');
+    const authKey = '0';
+
+    const { status, headers, body } = await getPrivateExamples(server, authKey);
 
     expect(status).toBe(200);
     expect(headers['content-type']).toBe('application/json; charset=utf-8');
     expect(body.success).toBe(true);
   });
 
-  test('Fail, Wrong Header Key', async () => {
-    const { status, headers, body } = await getPrivateExamples(server, '2');
+  test('Fail, Wrong Authorization Key', async () => {
+    const authKey = '2';
+
+    const { status, headers, body } = await getPrivateExamples(server, authKey);
 
     expect(status).toBe(403);
     expect(headers['content-type']).toBe('application/json; charset=utf-8');
     expect(body.success).toBe(false);
   });
 
-  test('Fail, Header Key Not Given', async () => {
+  test('Fail, Invalid Authorization Key', async () => {
+    const authKey = 'aaa';
+
+    const { status, headers, body } = await getPrivateExamples(server, authKey);
+
+    expect(status).toBe(403);
+    expect(headers['content-type']).toBe('application/json; charset=utf-8');
+    expect(body.success).toBe(false);
+  });
+
+  test('Fail, Authorization Key Not Given', async () => {
     const { status, headers, body } = await getPrivateExamples(server);
+
+    expect(status).toBe(403);
+    expect(headers['content-type']).toBe('application/json; charset=utf-8');
+    expect(body.success).toBe(false);
+  });
+});
+
+describe('Get Admin Data', () => {
+  test('Success', async () => {
+    const authKey = '1';
+
+    const { status, headers, body } = await getAdminExamples(server, authKey);
+
+    expect(status).toBe(200);
+    expect(headers['content-type']).toBe('application/json; charset=utf-8');
+    expect(body.success).toBe(true);
+  });
+
+  test('Fail, Wrong Authorization Key', async () => {
+    const authKey = '2';
+
+    const { status, headers, body } = await getAdminExamples(server, authKey);
+
+    expect(status).toBe(403);
+    expect(headers['content-type']).toBe('application/json; charset=utf-8');
+    expect(body.success).toBe(false);
+  });
+
+  test('Fail, Invalid Authorization Key', async () => {
+    const authKey = 'aaa';
+
+    const { status, headers, body } = await getAdminExamples(server, authKey);
+
+    expect(status).toBe(403);
+    expect(headers['content-type']).toBe('application/json; charset=utf-8');
+    expect(body.success).toBe(false);
+  });
+
+  test('Fail, Authorization Key Not Given', async () => {
+    const { status, headers, body } = await getAdminExamples(server);
 
     expect(status).toBe(403);
     expect(headers['content-type']).toBe('application/json; charset=utf-8');

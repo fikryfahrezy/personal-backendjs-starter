@@ -1,17 +1,19 @@
 import type { FastifyInstance, FastifyPluginOptions, HookHandlerDoneFunction } from 'fastify';
-import type { Request } from '../../types/fasitify';
+import type { Request } from '../../types/fastify';
 import type {
   ApiKeyHeader,
   IdRequestParams,
+  GetQuery,
   PostRequestBody,
   FileRequestBody,
 } from '../../types/schema';
 import { controllerWrapper, handlerWrapper } from '../../utils/serverfn-wrapper';
 import { renameFiles } from '../../utils/file-management';
+import queryBuilder from '../../middlewares/query-builder';
 import { isBodyEmpty } from '../../middlewares/request-validation';
 import schemaValidation from '../../middlewares/schema-validation';
 import { exampleProtect } from '../../middlewares/protect-route';
-import { requestBody, requestHeaders, requestParams, responses } from './schemas';
+import { requestHeaders, requestParams, requestQuery, requestBody, responses } from './schemas';
 import {
   getExample,
   postExample,
@@ -46,16 +48,18 @@ const routes = function routes(
     controllerWrapper(postExample),
   );
 
-  fastify.get(
+  fastify.get<Request<{ Querystring: GetQuery }>>(
     '/',
     {
       schema: {
+        querystring: requestQuery,
         response: {
           200: responses.datas,
           '4xx': { $ref: '#ApiResponse' },
           '5xx': { $ref: '#ApiResponse' },
         },
       },
+      preHandler: handlerWrapper(queryBuilder()),
     },
     controllerWrapper(getExample),
   );
@@ -117,7 +121,24 @@ const routes = function routes(
           '5xx': { $ref: '#ApiResponse' },
         },
       },
-      preHandler: [schemaValidation, handlerWrapper(exampleProtect)],
+      preHandler: [schemaValidation, handlerWrapper(exampleProtect('USER'))],
+    },
+    controllerWrapper(getPrivateExample),
+  );
+
+  fastify.get<Request<{ Headers: ApiKeyHeader }>>(
+    '/admin',
+    {
+      attachValidation: true,
+      schema: {
+        headers: requestHeaders.private,
+        response: {
+          200: responses.datas,
+          '4xx': { $ref: '#ApiResponse' },
+          '5xx': { $ref: '#ApiResponse' },
+        },
+      },
+      preHandler: [schemaValidation, handlerWrapper(exampleProtect('ADMIN'))],
     },
     controllerWrapper(getPrivateExample),
   );

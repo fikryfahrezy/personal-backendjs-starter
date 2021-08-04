@@ -90,11 +90,11 @@ const supertestReq = function supertestReq({
   return req;
 };
 
-export const getExamples = function getExamples(server: Server) {
+export const getExamples = function getExamples(server: Server, query: string = '') {
   return supertestReq({
     server,
     type: 'GET',
-    url: '/example',
+    url: `/example${query}`,
   });
 };
 
@@ -134,5 +134,14 @@ export const getPrivateExamples = function getPrivateExamples(server: Server, to
     token,
     type: 'GET',
     url: '/example/private',
+  });
+};
+
+export const getAdminExamples = function getAdminExamples(server: Server, token?: string) {
+  return supertestReq({
+    server,
+    token,
+    type: 'GET',
+    url: '/example/admin',
   });
 };

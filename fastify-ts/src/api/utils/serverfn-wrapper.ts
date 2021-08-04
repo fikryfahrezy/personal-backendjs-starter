@@ -1,6 +1,6 @@
 import type { Server, IncomingMessage, ServerResponse } from 'http';
 import type { FastifyRequest, FastifyReply, RequestGenericInterface } from 'fastify';
-import type { RequestHandler } from '../types/fasitify';
+import type { RequestHandler } from '../types/fastify';
 import { errorHandler } from './error-handler';
 
 type PreHandlerFn<T extends RequestGenericInterface> = (
